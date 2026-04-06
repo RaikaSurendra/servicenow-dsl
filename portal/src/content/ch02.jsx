@@ -7,6 +7,10 @@ export default function Ch02({ CodeBlock, Callout }) {
           Scriptable API on the platform. With these types you get full IntelliSense, refactoring
           support, and compile-time errors instead of runtime surprises on your PDI.
         </p>
+        <p className="mt-2">
+          In production, Glide code quality is mostly about query shape, mutation safety, and
+          observability discipline. This chapter focuses on those concerns, not only API syntax.
+        </p>
       </Section>
 
       <Section title="Install">
@@ -34,6 +38,50 @@ npx tsc --init`}
   }
 }`}
         />
+      </Section>
+
+      <Section title="Safe mutation patterns">
+        <CodeBlock
+          language="js"
+          filename="src/examples/mutation-safety.ts"
+          code={`/// <reference types="@servicenow/glide" />
+
+function closeIncidentSafely(sysId: string, note: string) {
+  const gr = new GlideRecord('incident')
+  if (!gr.get(sysId)) return { ok: false, code: 'NOT_FOUND' }
+
+  const state = gr.getValue('state')
+  if (state === '6' || state === '7') {
+    return { ok: false, code: 'ALREADY_CLOSED' }
+  }
+
+  gr.setValue('state', '6')
+  gr.setValue('close_notes', note)
+  gr.setWorkflow(true)
+  gr.autoSysFields(true)
+  gr.update()
+
+  gs.info(\`[IncidentOps] closed \${gr.getValue('number')} (\${sysId})\`)
+  return { ok: true, sysId }
+}`}
+        />
+      </Section>
+
+      <Section title="Query planning before implementation">
+        <CodeBlock
+          language="bash"
+          filename="design checklist"
+          showLineNumbers={false}
+          code={`1) Define exact record scope (table + filters)
+2) Confirm indexed fields for primary predicates
+3) Set deterministic ordering (orderBy/orderByDesc)
+4) Apply upper bounds (setLimit)
+5) Define minimal selected fields for response payloads`}
+        />
+        <Callout type="info">
+          Most Glide performance incidents come from broad queries and missing limits, not from
+          business logic complexity.
+        </Callout>
       </Section>
 
       <Section title="GlideRecord — CRUD">
@@ -150,6 +198,34 @@ function getIncidentCountByPriority(): Record<string, number> {
         />
       </Section>
 
+      <Section title="Index-aware performance patterns">
+        <ul className="list-disc list-inside space-y-1 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+          <li>Filter on indexed columns first (<code>state</code>, <code>priority</code>, date ranges)</li>
+          <li>Prefer <code>GlideAggregate</code> for analytics over loop-based counting</li>
+          <li>Use <code>setLimit()</code> for dashboard/list endpoints to cap query cost</li>
+          <li>Avoid large write loops during peak business hours; batch where possible</li>
+        </ul>
+      </Section>
+
+      <Section title="Diagnostics and troubleshooting">
+        <CodeBlock
+          language="bash"
+          filename="common Glide issues"
+          showLineNumbers={false}
+          code={`Symptom: query is slow in production
+  -> verify predicate fields are indexed and limits are applied
+
+Symptom: updates succeed but business behavior is unexpected
+  -> inspect Business Rules/Flows triggered by update()
+
+Symptom: aggregation mismatch with reports
+  -> align state filters and null-handling rules
+
+Symptom: intermittent script failures
+  -> add structured gs.error/gs.warn logs with correlation IDs`}
+        />
+      </Section>
+
       <Callout type="tip" title="TypeScript tip">
         Add <code>/// &lt;reference types="@servicenow/glide" /&gt;</code> at the top of any
         server-side TypeScript file to activate Glide type checking. No import needed — it's
@@ -162,6 +238,7 @@ function getIncidentCountByPriority(): Record<string, number> {
           <li><code>GlideRecord</code> handles CRUD with a fluent query builder</li>
           <li><code>GlideAggregate</code> is purpose-built for COUNT / SUM / AVG queries</li>
           <li><code>gs</code> is the global utility object — logging, user context, dates, properties</li>
+          <li>Production-grade Glide code requires explicit limits, index-aware filters, and safe mutation guards</li>
         </ul>
       </Section>
     </div>

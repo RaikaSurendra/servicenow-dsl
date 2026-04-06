@@ -12,6 +12,7 @@ const contentModules = {
   ch06: lazy(() => import('../content/ch06.jsx')),
   ch07: lazy(() => import('../content/ch07.jsx')),
   ch08: lazy(() => import('../content/ch08.jsx')),
+  ch09: lazy(() => import('../content/ch09.jsx')),
 }
 
 export default function ChapterPage({ chapter, onBack, onOpenChapter }) {

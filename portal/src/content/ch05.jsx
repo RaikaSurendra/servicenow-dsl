@@ -23,8 +23,66 @@ snc ui-component create --name x-learn-incident-card
 #     index.js          ← component entry
 #     styles.scss       ← scoped styles
 #     __tests__/
-#       component.test.js`}
+#       component.test.js}`}
         />
+      </Section>
+
+      <Section title="Lifecycle and state architecture">
+        <CodeBlock
+          language="bash"
+          filename="component event lifecycle"
+          showLineNumbers={false}
+          code={`COMPONENT_CONNECTED
+  -> read properties
+  -> dispatch fetch action
+  -> effect makes API request
+  -> SUCCESS/ERROR action
+  -> state update
+  -> view re-renders`}
+        />
+        <p className="text-sm mt-2" style={{ color: 'var(--color-text-muted)' }}>
+          Treat action names as your contract boundary. Keep side effects in <code>effect()</code>
+          and keep state transitions deterministic inside action handlers.
+        </p>
+      </Section>
+
+      <Section title="Robust async and cancellation pattern">
+        <CodeBlock
+          language="js"
+          filename="request race-safety sketch"
+          code={`const actionHandlers = {
+  FETCH_INCIDENT: {
+    effect({ action, dispatch, state }) {
+      const requestToken = Date.now().toString()
+      dispatch('FETCH_STARTED', { requestToken })
+
+      fetch(\`/api/now/table/incident/\${action.payload.sysId}\`)
+        .then((r) => r.json())
+        .then(({ result }) => dispatch('FETCH_SUCCESS', { incident: result, requestToken }))
+        .catch((err) => dispatch('FETCH_ERROR', { error: err.message, requestToken }))
+    },
+  },
+
+  FETCH_STARTED: ({ action, updateState }) => {
+    updateState({ loading: true, requestToken: action.payload.requestToken })
+  },
+
+  FETCH_SUCCESS: ({ action, state, updateState }) => {
+    if (action.payload.requestToken !== state.requestToken) return
+    updateState({ loading: false, incident: action.payload.incident })
+  },
+}`}
+        />
+      </Section>
+
+      <Section title="Production hardening checklist">
+        <ul className="list-disc list-inside space-y-1 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+          <li>Never trust client-side state for authorization decisions; enforce ACLs server-side</li>
+          <li>Avoid overfetching: request only required fields via <code>sysparm_fields</code></li>
+          <li>Keep component payloads small and avoid expensive render loops in view functions</li>
+          <li>Standardize user-visible errors to avoid leaking backend internals</li>
+          <li>Version your component contracts when adding/breaking properties</li>
+        </ul>
       </Section>
 
       <Section title="A Now Experience component">

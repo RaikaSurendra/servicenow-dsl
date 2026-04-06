@@ -59,6 +59,30 @@ export function calculateSLAStatus(gr: GlideRecord): 'on-track' | 'at-risk' | 'b
         />
       </Section>
 
+      <Section title="Designing module boundaries for maintainability">
+        <CodeBlock
+          language="bash"
+          filename="recommended module layering"
+          showLineNumbers={false}
+          code={`src/x_learn_modules/
+├── domain/
+│   ├── IncidentUtils.ts       # business rules and calculations
+│   └── SlaPolicy.ts
+├── data/
+│   └── IncidentRepository.ts  # GlideRecord access only
+├── integration/
+│   └── EventPublisher.ts      # events/notifications
+└── entrypoints/
+    ├── BusinessRule_OnInsert.ts
+    └── ScriptInclude_API.ts`}
+        />
+        <p className="text-sm mt-3" style={{ color: 'var(--color-text-muted)' }}>
+          Keep <code>GlideRecord</code> operations inside repository-style modules where possible.
+          This makes logic easier to test and avoids copy/paste query drift across Business Rules,
+          Script Includes, and REST handlers.
+        </p>
+      </Section>
+
       <Section title="Consuming modules on the server">
         <CodeBlock
           language="js"
@@ -108,6 +132,55 @@ describe('calculateSLAStatus', () => {
         />
       </Section>
 
+      <Section title="Error handling and observability contract">
+        <CodeBlock
+          language="js"
+          filename="src/x_learn_modules/IncidentService.ts"
+          code={`/// <reference types="@servicenow/glide" />
+
+type ResolveResult =
+  | { ok: true; sysId: string }
+  | { ok: false; code: 'NOT_FOUND' | 'INVALID_STATE'; message: string }
+
+export function resolveIncidentSafe(sysId: string, resolutionNote: string): ResolveResult {
+  try {
+    const gr = new GlideRecord('incident')
+    if (!gr.get(sysId)) {
+      gs.warn(\`[IncidentService] resolve failed; sys_id not found: \${sysId}\`)
+      return { ok: false, code: 'NOT_FOUND', message: 'Incident not found' }
+    }
+
+    if (gr.getValue('state') === '6') {
+      return { ok: false, code: 'INVALID_STATE', message: 'Incident already resolved' }
+    }
+
+    gr.setValue('state', '6')
+    gr.setValue('close_notes', resolutionNote)
+    gr.update()
+
+    gs.info(\`[IncidentService] resolved \${gr.getValue('number')} (\${sysId})\`)
+    return { ok: true, sysId }
+  } catch (e) {
+    gs.error(\`[IncidentService] unexpected resolve error: \${e.message}\`)
+    throw e
+  }
+}`}
+        />
+        <Callout type="tip">
+          Return structured error objects for expected failures and reserve thrown exceptions for
+          unexpected conditions. This keeps upstream handlers deterministic.
+        </Callout>
+      </Section>
+
+      <Section title="Performance patterns for Glide-heavy modules">
+        <ul className="list-disc list-inside space-y-1 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+          <li>Prefer encoded queries + indexed columns over broad table scans</li>
+          <li>Set explicit limits on list operations to cap worst-case runtime</li>
+          <li>Avoid calling <code>update()</code> in large loops without batching strategy</li>
+          <li>Use <code>GlideAggregate</code> for counts and grouped analytics instead of in-memory loops</li>
+        </ul>
+      </Section>
+
       <Section title="Build and deploy">
         <CodeBlock
           language="bash"
@@ -118,6 +191,19 @@ snc app build
 # Deploy — Script Includes appear in ServiceNow under
 # System Definition > Script Includes
 snc app install`}
+        />
+      </Section>
+
+      <Section title="Deployment verification checklist">
+        <CodeBlock
+          language="bash"
+          filename="post-deploy checks"
+          showLineNumbers={false}
+          code={`1) Open System Definition > Script Includes
+2) Confirm generated records exist in expected scope
+3) Execute entrypoint script in a safe test context
+4) Validate logs include expected [ModuleName] prefixes
+5) Run unit tests again before next deploy batch`}
         />
       </Section>
 

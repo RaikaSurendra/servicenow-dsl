@@ -16,6 +16,24 @@ export default function Ch06({ CodeBlock, Callout }) {
         </p>
       </Section>
 
+      <Section title="Integration architecture (off-platform)">
+        <CodeBlock
+          language="bash"
+          filename="reference pipeline"
+          showLineNumbers={false}
+          code={`Source system (scanner/export/event)
+  -> Node worker (servicenow-glide client)
+  -> transform + validation layer
+  -> ServiceNow Table/REST API calls
+  -> audit logs + retry queue
+  -> metrics and alerting`}
+        />
+        <p className="text-sm mt-2" style={{ color: 'var(--color-text-muted)' }}>
+          Keep API-specific logic in a small client wrapper so table names, auth, and retry behavior
+          are centralized instead of duplicated across scripts.
+        </p>
+      </Section>
+
       <Section title="Install and configure">
         <CodeBlock
           language="bash"
@@ -40,6 +58,67 @@ const sn = new ServiceNow({
 
 export default sn`}
         />
+      </Section>
+
+      <Section title="Retry and backoff for transient failures">
+        <CodeBlock
+          language="js"
+          filename="src/lib/retry.js"
+          code={`export async function withRetry(fn, attempts = 4) {
+  let lastErr
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await fn()
+    } catch (err) {
+      lastErr = err
+      const status = err?.response?.status
+      const retryable = status === 429 || (status >= 500 && status <= 599)
+      if (!retryable || i === attempts) break
+      const backoffMs = Math.min(1000 * 2 ** (i - 1), 8000)
+      await new Promise((r) => setTimeout(r, backoffMs))
+    }
+  }
+  throw lastErr
+}`}
+        />
+      </Section>
+
+      <Section title="Large-table pagination strategy">
+        <CodeBlock
+          language="js"
+          filename="src/examples/paginated-export.js"
+          code={`import sn from './client.js'
+
+let offset = 0
+const pageSize = 200
+
+while (true) {
+  const { result } = await sn.table('incident')
+    .query()
+    .field(['sys_id', 'number', 'state'])
+    .limit(pageSize)
+    .offset(offset)
+    .orderBy('sys_updated_on')
+    .get()
+
+  if (!result.length) break
+  // process page...
+  offset += result.length
+}`}
+        />
+        <Callout type="tip">
+          Paginate deterministically using a stable ordering field. This avoids duplicates or misses
+          when records change during long-running exports.
+        </Callout>
+      </Section>
+
+      <Section title="Operational safeguards">
+        <ul className="list-disc list-inside space-y-1 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+          <li>Mask credentials and tokens in logs by default</li>
+          <li>Add request IDs to every API call for traceability</li>
+          <li>Track success/error counts and p95 latency per endpoint</li>
+          <li>Use dry-run mode for migration scripts before mutating records</li>
+        </ul>
       </Section>
 
       <Section title="Table API operations">

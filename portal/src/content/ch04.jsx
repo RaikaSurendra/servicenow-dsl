@@ -105,6 +105,23 @@ export default restAPI({
         />
       </Section>
 
+      <Section title="Contract-first endpoint design">
+        <CodeBlock
+          language="bash"
+          filename="resource contract matrix"
+          showLineNumbers={false}
+          code={`GET  /incidents/v1/         -> 200 { result: Incident[], count }
+POST /incidents/v1/         -> 201 { result: { sys_id } }
+GET  /incidents/v1/{sys_id} -> 200 { result: Incident } | 404 { error }
+
+Design rules:
+- Stable response envelope ({ result } or { error })
+- Version path from day one (/v1)
+- Server-side limits to protect instance performance
+- Explicit status codes for each error class`}
+        />
+      </Section>
+
       <Section title="Test with curl">
         <Callout type="danger" title="🔒 Never expose credentials in test commands">
           Use environment variables when calling your PDI from the command line.
@@ -154,6 +171,79 @@ export function badRequest(response: GlideScopedEvaluator, message: string) {
   response.setBody({ error: { message, status: 400 } })
 }`}
         />
+      </Section>
+
+      <Section title="Request validation and sanitization">
+        <CodeBlock
+          language="js"
+          filename="src/x_learn_rest/helpers/validate.ts"
+          code={`/// <reference types="@servicenow/glide" />
+
+const ALLOWED_URGENCY = new Set([1, 2, 3])
+
+export function parseCreateIncident(rawBody: string) {
+  let payload
+  try {
+    payload = JSON.parse(rawBody || '{}')
+  } catch {
+    return { ok: false, status: 400, message: 'Invalid JSON body' }
+  }
+
+  const short = String(payload.short_description || '').trim()
+  if (!short) return { ok: false, status: 400, message: 'short_description is required' }
+
+  const urgency = payload.urgency == null ? 3 : Number(payload.urgency)
+  if (!ALLOWED_URGENCY.has(urgency)) {
+    return { ok: false, status: 422, message: 'urgency must be one of: 1,2,3' }
+  }
+
+  return {
+    ok: true,
+    value: {
+      short_description: short.slice(0, 160),
+      urgency,
+      category: String(payload.category || 'software').toLowerCase(),
+    },
+  }
+}`}
+        />
+        <Callout type="tip">
+          Treat request payloads as untrusted input. Validate type, shape, and allowed values before
+          any <code>GlideRecord.insert()</code> or <code>update()</code> call.
+        </Callout>
+      </Section>
+
+      <Section title="Idempotency and retry-safe writes">
+        <CodeBlock
+          language="js"
+          filename="POST handler idempotency sketch"
+          code={`const requestId = this.request.getHeader('X-Idempotency-Key')
+if (requestId) {
+  const dedupe = new GlideRecord('x_learn_request_dedupe')
+  dedupe.addQuery('key', requestId)
+  dedupe.query()
+  if (dedupe.next()) {
+    this.response.setStatus(200)
+    this.response.setBody({ result: { sys_id: dedupe.getValue('record_sys_id'), replay: true } })
+    return
+  }
+}
+
+// ...create record...
+// ...persist dedupe key with record sys_id...`}
+        />
+        <p className="text-sm mt-2" style={{ color: 'var(--color-text-muted)' }}>
+          This pattern is useful when upstream systems retry POST requests on timeout.
+        </p>
+      </Section>
+
+      <Section title="Runtime operations checklist">
+        <ul className="list-disc list-inside space-y-1 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+          <li>Add correlation IDs in logs to trace one request across handlers</li>
+          <li>Return consistent error envelopes so clients can parse failures predictably</li>
+          <li>Set practical upper bounds for query params like <code>limit</code></li>
+          <li>Document every breaking change behind a new API version path</li>
+        </ul>
       </Section>
 
       <Section title="Key Takeaways">

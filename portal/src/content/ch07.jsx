@@ -18,6 +18,24 @@ export default function Ch07({ CodeBlock, Callout }) {
         </p>
       </Section>
 
+      <Section title="MCP architecture in practice">
+        <CodeBlock
+          language="bash"
+          filename="assistant + MCP flow"
+          showLineNumbers={false}
+          code={`Developer prompt
+  -> AI assistant plans metadata changes
+  -> MCP tool call to fluent-mcp
+  -> fluent-mcp resolves SDK schemas + command interfaces
+  -> assistant generates Fluent DSL with validated structure
+  -> developer reviews + builds + deploys`}
+        />
+        <p className="text-sm mt-2" style={{ color: 'var(--color-text-muted)' }}>
+          The key value is schema-grounding: the assistant can query structured metadata definitions
+          instead of guessing syntax from general web patterns.
+        </p>
+      </Section>
+
       <Section title="Install">
         <CodeBlock
           language="bash"
@@ -86,6 +104,44 @@ npm install -g @modesty/fluent-mcp`}
             </div>
           ))}
         </div>
+      </Section>
+
+      <Section title="Secure and reliable MCP operations">
+        <ul className="list-disc list-inside space-y-1 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+          <li>Pin MCP package versions in team docs to avoid behavior drift</li>
+          <li>Do not expose instance credentials in prompts; keep secrets in <code>.env</code> only</li>
+          <li>Review generated code in PRs just like human-authored code</li>
+          <li>Require <code>snc app build</code> in CI to block schema-invalid outputs</li>
+          <li>Log generated artifacts and prompt intent for auditability</li>
+        </ul>
+      </Section>
+
+      <Section title="Prompt engineering for deterministic output">
+        <CodeBlock
+          language="bash"
+          filename="high-signal MCP prompt template"
+          showLineNumbers={false}
+          code={`Generate Fluent SDK code for <feature> with these constraints:
+- Scope: x_<company>_<app>
+- Metadata types allowed: table, restAPI, scriptInclude
+- Validation: include mandatory fields and explicit defaults
+- Error handling: structured { error: { message, status } } responses
+- Output format: complete file tree + each file content
+- Verification: include snc build command and expected checks`}
+        />
+      </Section>
+
+      <Section title="Governance model for AI-generated Fluent code">
+        <CodeBlock
+          language="bash"
+          filename="team guardrails"
+          showLineNumbers={false}
+          code={`1) AI generates first draft via fluent-mcp
+2) Developer verifies metadata names/scope consistency
+3) Static checks: lint + typecheck + snc app build
+4) Security review for ACLs and data exposure
+5) Deploy to PDI only after manual approval`}
+        />
       </Section>
 
       <Section title="Example prompt with fluent-mcp active">
