@@ -10,6 +10,7 @@ const gridChapters    = chapters.filter((c) => !c.isMvp)
 const SECTIONS = [
   { label: 'Foundation',      filter: (c) => c.difficulty === 'beginner' },
   { label: 'Building Blocks', filter: (c) => c.difficulty === 'intermediate' && !c.isMvp },
+  { label: 'Advanced',        filter: (c) => c.difficulty === 'advanced' && !c.isMvp },
 ]
 
 export default function Home({ onOpenChapter }) {
@@ -30,7 +31,7 @@ export default function Home({ onOpenChapter }) {
             color: 'var(--color-sn-green-light)',
             marginBottom: '20px',
           }}>
-            @servicenow/sdk v4.x · 8 chapters
+            @servicenow/sdk v4.x · 10 chapters
           </p>
           <h1 style={{
             fontFamily: 'var(--font-serif)',

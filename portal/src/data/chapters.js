@@ -98,6 +98,18 @@ export const chapters = [
     sdkPackages: ['@servicenow/sdk', '@servicenow/sdk-core'],
   },
   {
+    id: 'ch10',
+    number: 10,
+    slug: 'npm-package-ecosystem',
+    title: 'The @servicenow/sdk npm Ecosystem: Source Code Deep Dive',
+    subtitle: 'Every package dissected — sdk-api, sdk-cli, sdk-core, sdk-build-core, sdk-build-plugins, glide — their internals, dependencies, and how they layer together',
+    duration: '90 min',
+    difficulty: 'advanced',
+    tags: ['internals', 'npm', 'packages', 'source-code', 'sdk-api', 'sdk-cli', 'glide', 'ts-morph'],
+    projectDir: null,
+    sdkPackages: ['@servicenow/sdk', '@servicenow/sdk-api', '@servicenow/sdk-cli', '@servicenow/sdk-core', '@servicenow/sdk-build-core', '@servicenow/glide'],
+  },
+  {
     id: 'ch08',
     number: 8,
     slug: 'vuln-mgmt-containers',
