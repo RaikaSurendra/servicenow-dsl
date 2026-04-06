@@ -1,0 +1,29 @@
+{
+  "name": "sn-ch08-vuln-mgmt-containers",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build":          "snc app build",
+    "deploy":         "snc app install",
+    "deploy:ui":      "snc ui-component deploy --all",
+    "deploy:all":     "npm run deploy && npm run deploy:ui",
+    "watch":          "snc app install --watch",
+    "clean":          "snc app clean",
+    "seed":           "node scripts/seed-cves.js",
+    "seed:dry-run":   "SEED_DRY_RUN=true node scripts/seed-cves.js",
+    "test":           "jest"
+  },
+  "dependencies": {
+    "@servicenow/sdk":      "^4.4.1",
+    "@servicenow/sdk-core": "^4.4.1",
+    "@servicenow/glide":    "^27.0.5"
+  },
+  "devDependencies": {
+    "dotenv":      "^16.0.0",
+    "typescript":  "^5.4.0",
+    "jest":        "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest":     "^29.0.0"
+  }
+}

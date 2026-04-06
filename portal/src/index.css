@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  /* Anthropic engineering warm charcoal palette */
+  --color-bg:              #141413;
+  --color-surface:         #141413;
+  --color-surface-raised:  #1c1c1a;
+  --color-surface-overlay: #242421;
+  --color-border:          rgba(255, 255, 255, 0.07);
+  --color-border-hover:    rgba(255, 255, 255, 0.16);
+
+  /* Text — warm, not cool */
+  --color-text-primary:    #f5f4f0;
+  --color-text-secondary:  #9b9b8e;
+  --color-text-tertiary:   #666660;
+
+  /* ServiceNow identity accent — used sparingly */
+  --color-sn-green:        #00a550;
+  --color-sn-green-light:  #00c060;
+  --color-sn-green-dim:    rgba(0, 165, 80, 0.12);
+
+  /* Severity — for MVP chapter */
+  --color-critical: #ef4444;
+  --color-high:     #f97316;
+  --color-medium:   #f59e0b;
+  --color-low:      #22c55e;
+  --color-info:     #60a5fa;
+
+  /* Typography */
+  --font-serif: 'Playfair Display', 'Georgia', serif;
+  --font-sans:  'Inter', system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Serif utility */
+.font-serif { font-family: var(--font-serif); }
+code, pre   { font-family: var(--font-mono); }
+
+/* Scrollbar — subtle */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* Syntax tokens — GitHub dark style */
+.token-keyword  { color: #ff7b72; }
+.token-string   { color: #a5d6ff; }
+.token-comment  { color: #6e7681; font-style: italic; }
+.token-function { color: #d2a8ff; }
+.token-number   { color: #79c0ff; }
+.token-operator { color: #ff7b72; }
+.token-property { color: #7ee787; }
+.token-type     { color: #ffa657; }
+.token-plain    { color: #c9d1d9; }
+
+/* Fade-in on load */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fadeUp 0.5s ease forwards;
+}
