@@ -1,6 +1,10 @@
 import sdkApiKnowledge from './npm-knowledge/sdk.md?raw'
 import sdkCliKnowledge from './npm-knowledge/sdk-cli.md?raw'
 import sdkCoreKnowledge from './npm-knowledge/sdk-core.md?raw'
+import sdkUmbrellaKnowledge from './npm-knowledge/sdk-umbrella.md?raw'
+import sdkBuildPluginsKnowledge from './npm-knowledge/sdk-build-plugins.md?raw'
+import glideKnowledge from './npm-knowledge/glide.md?raw'
+import undiciKnowledge from './npm-knowledge/undici.md?raw'
 
 export default function Ch10({ CodeBlock, Callout }) {
   return (
@@ -27,12 +31,12 @@ export default function Ch10({ CodeBlock, Callout }) {
       <Section title="Canonical Notes Source: @servicenow/sdk-api">
         <p>
           This chapter now uses the canonical notes file at{' '}
-          <code>docs/npm-knowledge/sdk.md</code> as a source of truth. Update that file to keep
+          <code>portal/src/content/npm-knowledge/sdk.md</code> as a source of truth. Update that file to keep
           this section current.
         </p>
         <CodeBlock
           language="markdown"
-          filename="docs/npm-knowledge/sdk.md"
+          filename="portal/src/content/npm-knowledge/sdk.md"
           showLineNumbers={false}
           code={sdkApiKnowledge}
         />
@@ -41,11 +45,11 @@ export default function Ch10({ CodeBlock, Callout }) {
       <Section title="Canonical Notes Source: @servicenow/sdk-cli">
         <p>
           Companion reference content for the CLI layer is maintained in{' '}
-          <code>docs/npm-knowledge/sdk-cli.md</code>.
+          <code>portal/src/content/npm-knowledge/sdk-cli.md</code>.
         </p>
         <CodeBlock
           language="markdown"
-          filename="docs/npm-knowledge/sdk-cli.md"
+          filename="portal/src/content/npm-knowledge/sdk-cli.md"
           showLineNumbers={false}
           code={sdkCliKnowledge}
         />
@@ -54,13 +58,65 @@ export default function Ch10({ CodeBlock, Callout }) {
       <Section title="Canonical Notes Source: @servicenow/sdk-core">
         <p>
           Companion reference content for metadata contracts is maintained in{' '}
-          <code>docs/npm-knowledge/sdk-core.md</code>.
+          <code>portal/src/content/npm-knowledge/sdk-core.md</code>.
         </p>
         <CodeBlock
           language="markdown"
-          filename="docs/npm-knowledge/sdk-core.md"
+          filename="portal/src/content/npm-knowledge/sdk-core.md"
           showLineNumbers={false}
           code={sdkCoreKnowledge}
+        />
+      </Section>
+
+      <Section title="Canonical Notes Source: @servicenow/sdk (umbrella)">
+        <p>
+          Pack-level anatomy for the umbrella package is maintained in{' '}
+          <code>portal/src/content/npm-knowledge/sdk-umbrella.md</code>.
+        </p>
+        <CodeBlock
+          language="markdown"
+          filename="portal/src/content/npm-knowledge/sdk-umbrella.md"
+          showLineNumbers={false}
+          code={sdkUmbrellaKnowledge}
+        />
+      </Section>
+
+      <Section title="Canonical Notes Source: @servicenow/sdk-build-plugins">
+        <p>
+          Build plugin internals and execution flow are maintained in{' '}
+          <code>portal/src/content/npm-knowledge/sdk-build-plugins.md</code>.
+        </p>
+        <CodeBlock
+          language="markdown"
+          filename="portal/src/content/npm-knowledge/sdk-build-plugins.md"
+          showLineNumbers={false}
+          code={sdkBuildPluginsKnowledge}
+        />
+      </Section>
+
+      <Section title="Canonical Notes Source: @servicenow/glide">
+        <p>
+          Glide type declaration package notes are maintained in{' '}
+          <code>portal/src/content/npm-knowledge/glide.md</code>.
+        </p>
+        <CodeBlock
+          language="markdown"
+          filename="portal/src/content/npm-knowledge/glide.md"
+          showLineNumbers={false}
+          code={glideKnowledge}
+        />
+      </Section>
+
+      <Section title="Canonical Notes Source: undici">
+        <p>
+          HTTP transport and runtime integration notes are maintained in{' '}
+          <code>portal/src/content/npm-knowledge/undici.md</code>.
+        </p>
+        <CodeBlock
+          language="markdown"
+          filename="portal/src/content/npm-knowledge/undici.md"
+          showLineNumbers={false}
+          code={undiciKnowledge}
         />
       </Section>
 

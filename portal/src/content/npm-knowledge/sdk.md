@@ -219,6 +219,29 @@ The package's runtime dependencies tell you a lot about what it does under the h
 └── context/Parser                ← Build context: parse/commit/key/inspect metadata
 ```
 
+## UML: Build and Deploy Sequence
+
+```mermaid
+sequenceDiagram
+  participant User as CLI/IDE caller
+  participant Orchestrator as sdk-api Orchestrator
+  participant Plugins as sdk-build-plugins
+  participant Connector as Connector/IConnector
+  participant SN as ServiceNow instance
+
+  User->>Orchestrator: build()
+  Orchestrator->>Plugins: compile + validate metadata
+  Plugins-->>Orchestrator: build artifact set
+  User->>Orchestrator: pack()
+  Orchestrator-->>User: app.zip
+  User->>Orchestrator: install()
+  Orchestrator->>Connector: uploadScopedAppPackage()
+  Connector->>SN: upload + install request
+  SN-->>Connector: tracker/progress
+  Connector-->>Orchestrator: status
+  Orchestrator-->>User: installStatus()
+```
+
 ## The Big Picture
 
 `@servicenow/sdk-api` is essentially a programmatic SDK CLI engine — it's the layer that tools like the ServiceNow CLI (`snc`), VS Code extensions, or custom CI/CD pipelines use to:

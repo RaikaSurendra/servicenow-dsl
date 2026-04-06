@@ -92,6 +92,26 @@ Developer / CI
    build core / plugins / connector / instance APIs
 ```
 
+## UML: Command Execution Sequence
+
+```mermaid
+sequenceDiagram
+  participant Dev as Developer/CI
+  participant CLI as @servicenow/sdk-cli
+  participant API as @servicenow/sdk-api
+  participant SN as ServiceNow instance
+
+  Dev->>CLI: snc build --install
+  CLI->>CLI: parse args + validate flags
+  CLI->>API: orchestrator.build()
+  API-->>CLI: build result + artifact path
+  CLI->>API: orchestrator.install()
+  API->>SN: upload package + trigger install
+  SN-->>API: progress tracker/status
+  API-->>CLI: install status
+  CLI-->>Dev: logs + exit code
+```
+
 ## Notes for Teams
 
 - Pin SDK versions in CI for deterministic command behavior.

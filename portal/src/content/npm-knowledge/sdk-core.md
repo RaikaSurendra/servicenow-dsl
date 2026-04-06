@@ -101,6 +101,24 @@ Consumed by:
    └── sdk-api              (orchestration + operations)
 ```
 
+## UML: Contract Consumption Flow
+
+```mermaid
+flowchart TD
+  CORE[@servicenow/sdk-core\nSchemas + Types + Contracts]
+  BC[@servicenow/sdk-build-core]
+  BP[@servicenow/sdk-build-plugins]
+  API[@servicenow/sdk-api]
+  OUT[Consistent validation + deterministic builds]
+
+  CORE --> BC
+  CORE --> BP
+  CORE --> API
+  BC --> OUT
+  BP --> OUT
+  API --> OUT
+```
+
 ## Practical Engineering Implications
 
 - Treat schema updates as contract changes.
