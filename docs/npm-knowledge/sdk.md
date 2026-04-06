@@ -229,3 +229,12 @@ The package's runtime dependencies tell you a lot about what it does under the h
 - Sync app contents bidirectionally with an instance (`download` / `transform` / `uploadXMLFiles`)
 - Package and install apps on instances (`pack` / `install`)
 - Manage application dependencies (flow actions, tables, ACLs, etc.) with full TypeScript type generation
+
+## Source References
+
+- `https://www.npmjs.com/package/@servicenow/sdk-api`
+- `https://www.npmjs.com/package/@servicenow/sdk-cli`
+- `https://www.npmjs.com/package/@servicenow/sdk-core`
+- `https://registry.npmjs.org/@servicenow%2Fsdk-api`
+- `https://registry.npmjs.org/@servicenow%2Fsdk-cli`
+- `https://registry.npmjs.org/@servicenow%2Fsdk-core`
