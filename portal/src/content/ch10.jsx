@@ -1,6 +1,6 @@
-import sdkApiKnowledge from '../../../docs/npm-knowledge/sdk.md?raw'
-import sdkCliKnowledge from '../../../docs/npm-knowledge/sdk-cli.md?raw'
-import sdkCoreKnowledge from '../../../docs/npm-knowledge/sdk-core.md?raw'
+import sdkApiKnowledge from './npm-knowledge/sdk.md?raw'
+import sdkCliKnowledge from './npm-knowledge/sdk-cli.md?raw'
+import sdkCoreKnowledge from './npm-knowledge/sdk-core.md?raw'
 
 export default function Ch10({ CodeBlock, Callout }) {
   return (
