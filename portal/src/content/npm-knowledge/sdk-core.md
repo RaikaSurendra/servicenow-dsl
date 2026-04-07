@@ -1,6 +1,12 @@
 # Deep Dive: `@servicenow/sdk-core` (v4.5.0)
 
-`@servicenow/sdk-core` is the metadata type-system backbone of the ServiceNow SDK ecosystem. It provides strongly typed models and validation schemas used by build plugins, API orchestration, and compile-time checks.
+## What This Package Is
+
+`@servicenow/sdk-core` is the **metadata type system** for the ServiceNow SDK. It defines TypeScript schemas and models for every ServiceNow artifact type that the SDK can build, validate, or deploy. Think of it as the SDK's domain language — everything from table columns to flow actions is described here.
+
+At 5.72 MB and 1,635 files, its size reflects breadth: it covers the full range of ServiceNow platform record types that a scoped application can contain.
+
+---
 
 ## Package Identity
 
@@ -8,144 +14,269 @@
 |---|---|
 | Name | `@servicenow/sdk-core` |
 | Version | `4.5.0` |
-| License | `MIT` |
-| TypeScript declarations | `dist/global/index.d.ts` |
-| Unpacked size | 6,002,721 bytes (~5.72 MB) |
-| File count | 1,635 |
+| Types entry | `dist/global/index.d.ts` |
+| Runtime dependencies | **None** — contract-only package |
 | Node.js required | `>= 20.18.0` |
 | Package manager | `pnpm >= 10.8.0` |
+| Unpacked size | ~5.72 MB / 1,635 files |
 
-Additional registry context:
-
-- `latest` dist-tag is `4.5.0`
-- historical tags include `xanadu: 3.0.2`, `washingtondc: 1.0.6`
-- package description: `ServiceNow SDK - Core`
+---
 
 ## Export Surface
 
-`@servicenow/sdk-core@4.5.0` exports:
+```json
+{
+  "exports": {
+    "./global":     "./dist/global/index.d.ts",
+    "./*":          "./src/*/index.ts",
+    "./runtime/*":  "./dist/*/index.js"
+  }
+}
+```
 
-- `./* -> ./src/*/index.ts`
-- `./global -> ./dist/global/index.d.ts`
-- `./runtime/* -> ./dist/*/index.js`
+Three distinct entry points with different consumers:
 
-This split gives build-time type contracts (`./global`) and runtime-targeted artifacts (`./runtime/*`) while preserving source-oriented entry points.
+| Entry | Consumer | What it provides |
+|---|---|---|
+| `./global` | TypeScript editors, IDE plugins | Compiled `.d.ts` types for the full metadata surface |
+| `./src/*` | Build tools that import TypeScript source directly | Raw source — e.g. `@servicenow/sdk-core/flow` |
+| `./runtime/*` | SDK packages at build time | Compiled JavaScript runtime helpers |
 
-## Runtime Dependencies
+---
 
-For `4.5.0`, the registry metadata indicates no explicit runtime dependency list on the package manifest (contrast with older `1.x/2.x` lines that listed `zod`).
+## Source Directory Structure (`src/`)
 
-That reinforces `sdk-core` as a mostly contract-heavy package where size comes from schema/type coverage rather than broad runtime library composition.
+The package is organized by **platform domain**. Each folder is a self-contained module:
 
-## Why It Matters
+```
+src/
+├── app/              ← Application-level records: ApplicationMenu, Property,
+│                       UserPreference, CrossScopePrivilege, BusinessRule,
+│                       Acl, Role, Test, ImportSet, Sla, JsonSerializable
+│
+├── db/               ← Database layer: Table, Record, Column
+│                       Field types: Choice, String, Integer, Boolean, Date, Script,
+│                       TableName, DocumentId, Reference, List, Decimal, DomainId,
+│                       DomainPath, TemplateValue, TranslatedField, UserRoles,
+│                       BasicImage, Conditions, TranslatedText, Version,
+│                       SystemClassName, FieldName, Radio, Generic, Guid,
+│                       Password2, Json
+│
+├── flow/             ← Flow Designer: Flow, Subflow, Action, Trigger,
+│                       InlineScript, dataPill, ApprovalRules, ApprovalDueDate,
+│                       FlowLogic, FlowVariables, flow-data-helpers
+│
+├── fluent/           ← Generated fluent type helpers for dependency records
+│
+├── global/           ← Global type augmentation and re-export barrel
+│
+├── service-catalog/  ← Catalog items, catalog scripts, catalog UI policies
+│
+├── service-portal/   ← Portal components: Widget, Dependency, AngularProvider,
+│                       Portal, Page, Theme, Menu
+│
+├── ui/               ← UI layer: UIPage, UIAction, UIPolicy
+│
+├── util/             ← Shared utilities
+│
+├── rest/             ← REST API descriptor types
+│
+├── script/           ← Script Include types
+│
+├── clientscript/     ← Client Script types
+│
+├── dashboard/        ← Dashboard descriptor types
+│
+├── instancescan/     ← Instance Scan check types
+│
+├── notification/     ← Email notification descriptor types
+│
+└── uxf/              ← UX Framework (Next Experience) types
+```
 
-This package is where the SDK encodes what “valid ServiceNow metadata” looks like.
+---
 
-Without `sdk-core`:
+## Key Type Families
 
-- Plugin validation would drift across packages
-- TypeScript types would diverge from runtime validation
-- Compiler diagnostics would be less deterministic
+### Database Layer (`src/db/`)
 
-With `sdk-core`:
+```ts
+// Table definition
+export * from './Table'     // { name, label, extends, columns, ... }
+export * from './Record'    // base record shape
+export * from './Column'    // column descriptor
 
-- Shared schemas drive both type inference and runtime checks
-- Build plugins can validate records consistently
-- SDK evolution can stay contract-driven across layers
+// Every ServiceNow field type
+export * from './types/String'
+export * from './types/Integer'
+export * from './types/Boolean'
+export * from './types/Date'
+export * from './types/Script'        // server-side script field
+export * from './types/Reference'     // reference field (FK to another table)
+export * from './types/List'          // list-type field
+export * from './types/Choice'        // choice list field
+export * from './types/Guid'          // sys_id type
+export * from './types/Password2'     // encrypted password field
+export * from './types/Json'          // JSON blob field
+export * from './types/TranslatedText'
+export * from './types/Conditions'    // encoded query string type
+// ... 15 more field types
+```
 
-## Core Concepts
+These types are used by `sdk-build-plugins`'s `column-plugin`, `table-plugin`, and `record-plugin` to validate that your metadata files use correct field types.
 
-### 1) Schema-First Modeling
+### Application Layer (`src/app/`)
 
-A schema-first approach allows the same definition family to power:
+```ts
+export * from './ApplicationMenu'     // nav menu items
+export * from './Property'            // sys_properties records
+export * from './UserPreference'      // sys_user_preference records
+export * from './CrossScopePrivilege' // cross-scope API privilege grants
+export * from './BusinessRule'        // sys_script records
+export * from './Acl'                 // sys_security_acl records
+export * from './Role'                // sys_user_role records
+export * from './Test'                // ATF test definitions
+export * from './ImportSet'           // sys_transform_map
+export * from './Sla'                 // contract_sla records
 
-- Runtime validation
-- Static TypeScript types
-- Better diagnostics for malformed metadata
+// Shared utility type
+export type JsonSerializable =
+  | string | number | boolean | null
+  | JsonSerializable[]
+  | { [key: string]: JsonSerializable }
+```
 
-### 2) Metadata Surface Coverage
+### Flow Layer (`src/flow/`)
 
-The package tends to be large because it tracks many metadata object families:
+The flow module defines the **authoring schema** for Flow Designer artifacts — what you write in your `.ts` project files when building flows:
 
-- Application-level records
-- Table and dictionary structures
-- Script includes and scripted APIs
-- UI and experience metadata
-- Security-related records and associations
+```ts
+export * from './Flow'           // FlowDefinition, Flow builder
+export * from './Subflow'        // SubflowDefinition
+export * from './FlowTypes'      // type aliases for flow data types
+export * from './FlowVariables'  // input/output variable descriptors
+export * from './transform'      // transform/mapping types
+export * from './built-ins'      // built-in step types
 
-As platform coverage grows, schema count and file count grow with it.
+// Data pill and approval helpers
+export { InlineScript, dataPill, ApprovalRules, ApprovalDueDate } from './flow-data-helpers'
 
-The size growth from early releases to `4.5.0` (1,635 files) reflects broad platform metadata support and richer generated contract surfaces.
+// FlowLogic (branching, conditions, parallel branches)
+import { FlowLogic } from './flow-logic'
 
-### 3) Stability Through Contracts
+// Flow data type system
+export type {
+  ArrayFlowDataType,
+  FlowDataType,
+  ApprovalRulesType,
+  ApprovalConditionRuleType,
+  ApprovalRuleActionType,
+  ApprovalRuleConditionType,
+  ApprovalRuleSetType,
+  ApprovalDueDateType
+} from './flow-data-helpers'
 
-`sdk-core` provides shared contracts consumed by:
+export { ARRAY_FLOW_DATA_TYPES } from './flow-data-helpers'
+```
 
-- `@servicenow/sdk-build-core`
-- `@servicenow/sdk-build-plugins`
-- `@servicenow/sdk-api`
+Flow Designer actions written in TypeScript DSL use these types. The `sdk-build-plugins` flow plugins (`flow-definition-plugin`, `flow-action-definition-plugin`, `step-definition-plugin`, etc.) consume these schemas to validate and transform your flow source into platform XML.
 
-This keeps pipeline behavior predictable when moving from local compile to instance deployment.
+---
 
-## Architecture Position
+## How `sdk-core` Connects to Other Packages
 
-```text
+```
+@servicenow/sdk-core  (schemas, types, contracts)
+      │
+      ├── consumed by @servicenow/sdk-build-core
+      │     → compiler engine uses Record/Table/Column types
+      │
+      ├── consumed by @servicenow/sdk-build-plugins
+      │     → each plugin validates metadata against these schemas
+      │     → RecordPlugin uses TableOwnership (maps table names to plugin sys_ids)
+      │     → column-plugin validates Column types against db/types/*
+      │     → flow plugins use Flow, Subflow, FlowVariables
+      │
+      └── consumed by @servicenow/sdk-api
+            → Orchestrator uses NowConfig type (from sdk-build-core, which imports sdk-core)
+            → ApplicationDependencies maps now.config.json dependency specs to core types
+```
+
+---
+
+## The `global/` Barrel and Type Augmentation
+
+`src/global/index.ts` re-exports types that need to be globally available to TypeScript consumers:
+
+```ts
+export * from './unresolved'       // Now.Unresolved type for forward references
+export * from './Keys'             // Now.Keys — the keys registry type
+export * from './Tables'           // Now.Tables — global table type map
+export * from './tagged-templates' // script`...`, Now.ID`...` tagged templates
+export * from './include'          // Now.Include for Script Include references
+export * from './image'            // Now.Image type
+export * from './ref'              // Now.Ref — typed record references
+export * from './data-helpers'     // data accessors
+import './attach'                  // installs global type augmentation (side effect)
+```
+
+The `./attach` side-effect import augments the global TypeScript scope so that `Now.ID`, `Now.Ref`, `script` tagged template literals, and similar patterns are available in your project's TypeScript files without explicit imports.
+
+---
+
+## Version History and Growth
+
+The version naming reflects ServiceNow platform releases:
+
+| SDK Version | Platform Codename | Notes |
+|---|---|---|
+| `1.0.6` | Washington DC | Early release |
+| `3.0.2` | Xanadu | Major schema expansion |
+| `4.5.0` | Yokohama/current | 1,635 files, 5.72 MB |
+
+The growth in file count directly corresponds to the number of ServiceNow record types the SDK supports building. Each new platform release adds record types (UX components, AI agent configs, dashboard widgets, etc.) that require new schemas.
+
+---
+
+## Why No Runtime Dependencies?
+
+This package has zero runtime dependencies in `package.json`. The approach is intentional:
+
+1. **Stability** — consumers don't inherit transitive dependency risks from this contract layer
+2. **Tree-shaking** — bundlers can include only the schemas actually used
+3. **Isomorphism** — schemas work identically in Node.js, browser, and type-checking contexts
+4. **Portability** — can be imported by any tool in the ecosystem without dependency conflicts
+
+Validation logic that requires a runtime library (like `zod`) lives in `sdk-api` and `sdk-build-plugins`, not here.
+
+---
+
+## Architecture Summary
+
+```
 @servicenow/sdk-core
-   ├── metadata schemas
-   ├── type models
-   └── validation contracts
-
-Consumed by:
-   ├── sdk-build-core       (compiler engine)
-   ├── sdk-build-plugins    (record transformers)
-   └── sdk-api              (orchestration + operations)
+│
+├── src/db/        ← Table + Record + 25 Column field types
+├── src/app/       ← 10 application artifact types (Rule, ACL, Role, ...)
+├── src/flow/      ← Flow/Subflow/Action DSL types + FlowLogic
+├── src/global/    ← Global type augmentation (Now.ID, Now.Keys, Now.Ref, ...)
+├── src/ui/        ← UIPage, UIAction, UIPolicy
+├── src/script/    ← Script Include schema
+├── src/clientscript/ ← Client Script schema
+├── src/rest/      ← REST API descriptor schema
+├── src/service-catalog/ ← Catalog item schemas
+├── src/service-portal/  ← Portal component schemas
+├── src/dashboard/ ← Dashboard widget schemas
+├── src/uxf/       ← Next Experience UX component schemas
+├── src/instancescan/ ← Instance Scan check schemas
+├── src/notification/ ← Email notification schemas
+├── src/util/      ← Shared type utilities
+└── src/fluent/    ← Fluent-generated dependency type helpers
 ```
 
-## UML: Contract Consumption Flow
-
-```mermaid
-flowchart TD
-  CORE[@servicenow/sdk-core\nSchemas + Types + Contracts]
-  BC[@servicenow/sdk-build-core]
-  BP[@servicenow/sdk-build-plugins]
-  API[@servicenow/sdk-api]
-  OUT[Consistent validation + deterministic builds]
-
-  CORE --> BC
-  CORE --> BP
-  CORE --> API
-  BC --> OUT
-  BP --> OUT
-  API --> OUT
-```
-
-## Practical Engineering Implications
-
-- Treat schema updates as contract changes.
-- Validate generated metadata as early as possible in build pipelines.
-- Keep plugin logic aligned to shared `sdk-core` types to avoid custom drift.
-- Pin SDK versions in CI to keep schema behavior stable.
-
-## The Big Picture
-
-`@servicenow/sdk-core` is the **contract layer** of the ServiceNow SDK ecosystem. It is intentionally broad because it encodes the metadata language that every higher-level package depends on.
+---
 
 ## Source References
 
+- `docs/npm-packs/extract/servicenow-sdk-core-4.5.0/package/src/`
 - `https://www.npmjs.com/package/@servicenow/sdk-core`
-- `https://registry.npmjs.org/@servicenow%2Fsdk-core`
-
-## Tarball Evidence (from docs/npm-packs/extract)
-
-- package.json highlights:
-  - `types: dist/global/index.d.ts`
-  - `exports: { "./global": "./dist/global/index.d.ts", "./*": "./src/*/index.ts", "./runtime/*": "./dist/*/index.js" }`
-  - `engines.node: ">=20.18.0"`
-  - No `dependencies` field present in the manifest at `4.5.0`
-- Source layout (selected): `src/`
-  - `app/`, `db/`, `flow/`, `fluent/`, `global/`, `service-catalog/`, `service-portal/`, `ui/`, `util/`, `rest/`, `script/`, `clientscript/`, `dashboard/`, `instancescan/`, `notification/`, `sys/`, `uxf/`
-- Contract split:
-  - Type-only entry via `./global` for editor/consumer typings
-  - Runtime helpers via `./runtime/*` for use by build-time processes
-
-This structure matches the observed role: schemas and types are authored in `src/*`, while runtime-affecting utilities are emitted to `dist/*` and re-exported from `./runtime/*` subpaths.

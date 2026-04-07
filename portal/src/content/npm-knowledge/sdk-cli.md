@@ -1,6 +1,10 @@
 # Deep Dive: `@servicenow/sdk-cli` (v4.5.0)
 
-`@servicenow/sdk-cli` is the command interface layer for the ServiceNow SDK stack. It translates developer intent (`snc build`, `snc deploy`, `snc init`, `snc types`) into orchestrated calls into `@servicenow/sdk-api` and build subsystems.
+## What This Package Is
+
+`@servicenow/sdk-cli` is the **user-facing command interface** for the ServiceNow SDK. It parses developer intent from the terminal, validates arguments, manages auth flows, renders progress, and delegates all heavy lifting to `@servicenow/sdk-api`. No metadata compilation or instance HTTP logic lives here — it is purely a UX and routing layer.
+
+---
 
 ## Package Identity
 
@@ -8,158 +12,44 @@
 |---|---|
 | Name | `@servicenow/sdk-cli` |
 | Version | `4.5.0` |
-| License | `MIT` |
 | Main entry | `dist/index.js` |
-| TypeScript declarations | `./dist/index.d.ts` |
-| Unpacked size | 293,250 bytes (~286.4 KB) |
-| File count | 122 |
+| TypeScript declarations | `dist/index.d.ts` |
 | Node.js required | `>= 20.18.0` |
 | Package manager | `pnpm >= 10.8.0` |
+| Unpacked size | ~286 KB / 122 files |
 
-## What It Owns
+---
 
-At a high level, `sdk-cli` owns:
+## Command Registry
 
-- Command parsing and routing
-- Argument validation and UX prompts
-- Human-readable logging and error display
-- Authentication/session handoff flows
-- Invocation of API/build operations in `sdk-api`
+The CLI registers these commands via `yargs` in `dist/index.js`:
 
-It does **not** implement deep metadata compilation itself. Compiler-heavy transforms live in `@servicenow/sdk-build-core` and plugins.
-
-## Core Responsibilities
-
-### 1) Command Routing
-
-Typical command flow:
-
-1. Parse argv
-2. Resolve command + options
-3. Validate/normalize inputs
-4. Create context/config
-5. Call `sdk-api` orchestration methods
-6. Render terminal output + exit code
-
-### 2) UX + Interaction Layer
-
-- Interactive prompt mode for guided operations
-- Non-interactive mode for deterministic CI pipelines
-- Actionable flag and runtime error output
-
-### 3) Diagnostics Presentation
-
-- Structured logs for each command phase
-- Contextual error messages with hints
-- Stable CLI output patterns across local and CI environments
-
-### 4) Auth Integration
-
-The CLI resolves command intent and auth mode, then delegates instance-facing operations to API-layer abstractions.
-
-## Runtime Dependencies (`4.5.0`)
-
-| Dependency | Version | Why it matters |
+| Command | Module | What it does |
 |---|---|---|
-| `@servicenow/sdk-api` | `4.5.0` | Core lifecycle orchestration calls |
-| `@servicenow/sdk-build-core` | `4.5.0` | Build primitives consumed by commands |
-| `yargs` | `17.6.2` | CLI argument parsing |
-| `winston` | `3.8.2` | Structured command logging |
-| `chalk` | `4.1.2` | Terminal styling |
-| `@inquirer/prompts` | `3.1.1` | Interactive prompts |
-| `openid-client` | `5.6.5` | OAuth/OIDC flows |
-| `@napi-rs/keyring` | `1.2.0` | Secure credential storage bridge |
-| `clipboardy` | `4.0.0` | Clipboard convenience for UX flows |
-| `tough-cookie` | `5.1.2` | Cookie/session management |
-| `lodash` | `4.17.23` | Utilities |
-| `semver` | `7.5.4` | Version constraint handling |
-| `open` | `8.4.2` | Opens browser for auth and docs flows |
+| `auth` | `dist/command/auth/` | OAuth/OIDC login, logout, credential management |
+| `init` | `dist/command/init/` | Scaffold a new ServiceNow project |
+| `build [source]` | `dist/command/build/` | Compile project → emit XML artifacts |
+| `install` | `dist/command/install/` | Upload + install app on instance |
+| `download` | `dist/command/download/` | Pull app XML from instance |
+| `transform` | `dist/command/transform/` | Convert downloaded XML to project format |
+| `pack` | `dist/command/pack/` | Create ZIP from built artifacts |
+| `clean` | `dist/command/clean/` | Clear build and pack output directories |
+| `dependencies` | `dist/command/dependencies/` | Add/manage typed dependency items |
+| `explain` | `dist/command/explain/` | Display API documentation from plugins |
+| `upgrade` | `dist/command/upgrade/` | Upgrade SDK version |
+| `run [script]` | `dist/command/run/` | Run a project script (hidden, for internal use) |
+| `move` | `dist/command/move-to-app/` | Move global records into a scoped app |
 
-## Architecture Position
+---
 
-```text
-Developer / CI
-   │
-   ▼
-@servicenow/sdk-cli
-   ├── parse command + flags
-   ├── validate and normalize inputs
-   ├── render logs/prompts/errors
-   └── call orchestration methods
-           ▼
-      @servicenow/sdk-api
-           ▼
-   build core / plugins / connector / instance APIs
-```
-
-## UML: Command Execution Sequence
-
-```mermaid
-sequenceDiagram
-  participant Dev as Developer/CI
-  participant CLI as @servicenow/sdk-cli
-  participant API as @servicenow/sdk-api
-  participant SN as ServiceNow instance
-
-  Dev->>CLI: snc build --install
-  CLI->>CLI: parse args + validate flags
-  CLI->>API: orchestrator.build()
-  API-->>CLI: build result + artifact path
-  CLI->>API: orchestrator.install()
-  API->>SN: upload package + trigger install
-  SN-->>API: progress tracker/status
-  API-->>CLI: install status
-  CLI-->>Dev: logs + exit code
-```
-
-## Notes for Teams
-
-- Pin SDK versions in CI for deterministic command behavior.
-- Prefer non-interactive flags in automation.
-- Treat CLI output as human-facing unless a machine-readable output mode is explicitly provided.
-
-## Source References
-
-- `https://www.npmjs.com/package/@servicenow/sdk-cli`
-- `https://registry.npmjs.org/@servicenow%2Fsdk-cli`
-
-## Tarball Evidence (from docs/npm-packs/extract)
-
-- package.json highlights:
-  - `main: dist/index.js`
-  - `engines.node: ">=20.18.0"`
-  - dependencies include `yargs@17.6.2`, `winston@3.8.2`, `chalk@4.1.2`, `@inquirer/prompts@3.1.1`, `openid-client@5.6.5`, `@servicenow/sdk-api@4.5.0`, `@servicenow/sdk-build-core@4.5.0`
-- dist layout (selected):
-  - `dist/index.js`
-  - `dist/command/{auth,build,clean,dependencies,download,explain,init,install,move-to-app,pack,run,transform,upgrade}/index.js`
-  - `dist/logger/`, `dist/usage/`, `dist/telemetry/`, `dist/auth/`
-
-### Node engine guard and yargs setup (excerpt)
+## Yargs Wiring (actual `dist/index.js` structure)
 
 ```js
-// dist/index.js (excerpt)
-const yargs = require('yargs')
-const { usage } = require('./usage')
-const { epilogue } = require('./epilogue')
-const { build } = require('./command/build')
-const { install } = require('./command/install')
-const { download } = require('./command/download')
-const { transform } = require('./command/transform')
-const { init } = require('./command/init')
-const { auth } = require('./command/auth')
-const { pack } = require('./command/pack')
-const { explain } = require('./command/explain')
-const { clean } = require('./command/clean')
-const { dependencies } = require('./command/dependencies')
-const { satisfies } = require('semver')
-const { logger } = require('./logger')
-const pkg = require('../package.json')
-
 yargs
   .check(() => {
-    const needed = pkg.engines.node
-    if (!satisfies(process.version, needed)) {
-      logger.error(`now-sdk requires node version to be ${needed}`)
+    // Node version guard: fails if Node < engines.node requirement
+    if (!satisfies(process.version, pkg.engines.node)) {
+      logger.error(`now-sdk requires node version to be ${pkg.engines.node}`)
       process.exit(1)
     }
     return true
@@ -178,26 +68,183 @@ yargs
   .command(pack)
   .command(explain)
   .command('move', false, require('./command/move-to-app').moveToApp)
-  .demandCommand()
-  .epilogue(epilogue)
-  .strictCommands()
+  .demandCommand()        // requires a subcommand — bare `now-sdk` prints help
+  .strictCommands()       // unknown commands are errors
   .help()
-  .scriptName('now-sdk').argv
+  .scriptName('now-sdk')
+  .argv
 ```
 
-### `snc build` command builder (excerpt)
+---
+
+## `snc build` — Command Shape
 
 ```js
-// dist/command/build/index.js (excerpt)
+// dist/command/build/index.js
 exports.build = {
   command: 'build [source]',
   describe: 'Compile sources into app files and generate installable package',
   builder: (yargs) => yargs
-    .positional('source', { describe: 'Path to project', default: process.cwd(), type: 'string' })
-    .option('frozenKeys', { describe: 'Validate Keys/SysIds for CI', default: false, type: 'boolean' })
-    .option('ids', { describe: 'Array of sysIds of records to build', type: 'array', string: true, hidden: true })
-    .option('profile', { describe: 'Emit a .cpuprofile', type: 'boolean', default: false, hidden: true }),
-  handler: async (args) => { /* orchestrator.build({ frozenKeys, sysIds }) */ }
+    .positional('source', {
+      describe: 'Path to the project directory',
+      default: process.cwd(),
+      type: 'string'
+    })
+    .option('frozenKeys', {
+      describe: 'Throw error if key registry changes (use in CI)',
+      type: 'boolean',
+      default: false
+    })
+    .option('ids', {
+      describe: 'Array of sys_ids to include in build output',
+      type: 'array',
+      string: true,
+      hidden: true   // internal/advanced flag
+    })
+    .option('profile', {
+      describe: 'Emit a CPU profile for performance analysis',
+      type: 'boolean',
+      default: false,
+      hidden: true
+    }),
+
+  handler: async (args) => {
+    // → creates Project from args.source
+    // → new Orchestrator(project, credential)
+    // → await orchestrator.build({ frozenKeys: args.frozenKeys, sysIds: args.ids })
+    // → logs result, exits 0/1
+  }
 }
 ```
 
+**Key design:** the `handler` is thin — it constructs the `Orchestrator` and calls `build()`. The SDK-API layer owns all compiler logic.
+
+---
+
+## Runtime Dependencies Explained
+
+| Dependency | Version | Why it's needed |
+|---|---|---|
+| `@servicenow/sdk-api` | 4.5.0 | Core lifecycle: Orchestrator, ProjectFactory, Connector |
+| `@servicenow/sdk-build-core` | 4.5.0 | Shared build types consumed by some command handlers |
+| `yargs` | 17.6.2 | Command parsing, help text generation, positional args |
+| `winston` | 3.8.2 | Structured log output with configurable transports |
+| `chalk` | 4.1.2 | ANSI color output for terminal logs |
+| `@inquirer/prompts` | 3.1.1 | Interactive prompts (e.g., enter instance URL, confirm action) |
+| `openid-client` | 5.6.5 | OAuth2 / OIDC authorization code + PKCE flows |
+| `@napi-rs/keyring` | 1.2.0 | OS keychain bridge (stores credentials in macOS Keychain, Windows Credential Store, Linux Secret Service) |
+| `clipboardy` | 4.0.0 | Copies auth codes or tokens to clipboard for UX flows |
+| `tough-cookie` | 5.1.2 | Cookie jar management for session continuity |
+| `open` | 8.4.2 | Opens browser for OAuth login or documentation |
+| `semver` | 7.5.4 | Node version constraint checking |
+| `lodash` | 4.17.23 | Utilities |
+
+---
+
+## Auth Flow Architecture
+
+The `auth` command manages the full OIDC login lifecycle:
+
+```
+snc auth login
+  → @inquirer/prompts: "Enter your instance URL"
+  → openid-client: OIDC Discovery → Authorization URL
+  → open: launch browser to auth endpoint
+  → clipboardy: copy device code if needed
+  → receive callback with authorization code
+  → exchange code for tokens (PKCE)
+  → @napi-rs/keyring: store tokens in OS keychain
+
+snc build (later invocation)
+  → LazyCredential.getHeaders()
+      → @napi-rs/keyring: retrieve stored token
+      → inject Authorization: Bearer <token> on requests
+```
+
+The keyring stores credentials per instance URL. Multiple instances can have separate stored credentials.
+
+---
+
+## Logger Layer (`dist/logger/`)
+
+The `winston`-based logger provides structured output:
+
+- **`--debug` flag** → sets log level to `debug`, emits verbose internal SDK messages
+- **Without `--debug`** → only `info`, `warn`, `error` are shown
+- CI output is plain text; TTY output includes colors via `chalk`
+- Build diagnostics (TypeScript errors in your scripts) are formatted with file path, line number, and message severity
+
+---
+
+## Non-Interactive Mode (CI)
+
+All commands that require user input have flag-based alternatives:
+
+```bash
+# Instead of interactive prompts, supply all required values as flags
+snc build --frozenKeys                    # fail if key registry changes
+snc install --packageZipPath ./app.zip   # skip pack step
+snc download --method incremental --lastPull 2024-01-01T00:00:00Z
+```
+
+The `--debug` flag works in all environments and appends CPU profile output when combined with `--profile`.
+
+---
+
+## Architecture Position
+
+```
+Developer terminal / CI runner
+        │
+        ▼
+@servicenow/sdk-cli  (dist/command/*)
+  ├── yargs: parse argv → command + options
+  ├── @inquirer/prompts: interactive UX when needed
+  ├── winston + chalk: log formatting
+  ├── openid-client + @napi-rs/keyring: auth resolution
+  └── calls @servicenow/sdk-api
+          ├── Orchestrator.build()
+          ├── Orchestrator.install()
+          ├── Orchestrator.download()
+          ├── Orchestrator.types()
+          └── ...all other lifecycle operations
+```
+
+---
+
+## CLI Sequence Diagram
+
+```
+Dev: snc build --install
+
+sdk-cli/command/build/handler
+  → validate project path (process.cwd() default)
+  → LazyCredential (resolve from keychain)
+  → new Orchestrator(project, credential)
+
+  → orchestrator.build()
+        sdk-build-plugins (each plugin)
+        → @servicenow/glide (type checks)
+        → emit XML to appOutDir
+  ← BuildResultSuccess { packOutput }
+
+  → orchestrator.pack()
+  ← app.zip path
+
+  → orchestrator.install({ packageZipPath })
+        Connector.uploadScopedAppPackage(zip)
+        → undici POST /api/now/app_store_mtx/package/app
+        ← { trackerId, rollbackId }
+        poll installStatus()
+        ← { finished: true, id }
+
+logger: "Install complete"
+process.exit(0)
+```
+
+---
+
+## Source References
+
+- `docs/npm-packs/extract/servicenow-sdk-cli-4.5.0/package/dist/`
+- `https://www.npmjs.com/package/@servicenow/sdk-cli`
