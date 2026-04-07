@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400">
+  <rect width="720" height="400" rx="12" fill="#0f172a"/>
+  <g font-family="Inter, ui-sans-serif" font-size="14" fill="#e5e7eb">
+    <text x="24" y="32" font-weight="600" fill="#a7f3d0">@servicenow/sdk-api</text>
+  </g>
+  <g stroke="#334155" fill="#111827">
+    <rect x="60" y="70" width="220" height="70" rx="8"/>
+    <rect x="260" y="70" width="220" height="70" rx="8"/>
+    <rect x="460" y="70" width="200" height="70" rx="8"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#f1f5f9">
+    <text x="110" y="110">Project</text>
+    <text x="320" y="110">Orchestrator</text>
+    <text x="510" y="110">Connector</text>
+  </g>
+  <g stroke="#22d3ee" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="280" y1="105" x2="320" y2="105"/>
+    <line x1="480" y1="105" x2="500" y2="105"/>
+  </g>
+  <g stroke="#334155" fill="#0b1220">
+    <rect x="120" y="190" width="220" height="70" rx="8"/>
+    <rect x="360" y="190" width="240" height="70" rx="8"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#cbd5e1">
+    <text x="150" y="230">ApplicationDependencies</text>
+    <text x="405" y="230">Credentials / LazyCredential</text>
+  </g>
+  <g stroke="#22d3ee" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="270" y1="140" x2="230" y2="190"/>
+    <line x1="400" y1="140" x2="430" y2="190"/>
+  </g>
+  <g stroke="#334155" fill="#0b1220">
+    <rect x="220" y="300" width="280" height="70" rx="10"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#cbd5e1">
+    <text x="260" y="342">Pack / Install / Download / Types</text>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#22d3ee"/>
+    </marker>
+  </defs>
+</svg>

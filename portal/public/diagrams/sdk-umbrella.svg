@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360">
+  <rect width="720" height="360" rx="12" fill="#0f172a"/>
+  <g font-family="Inter, ui-sans-serif" font-size="14" fill="#e5e7eb">
+    <text x="24" y="32" font-weight="600" fill="#a7f3d0">@servicenow/sdk (umbrella)</text>
+  </g>
+  <g stroke="#334155" fill="#111827">
+    <rect x="60" y="80" width="200" height="70" rx="8"/>
+    <rect x="260" y="80" width="200" height="70" rx="8"/>
+    <rect x="460" y="80" width="200" height="70" rx="8"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#f1f5f9">
+    <text x="85" y="115">@servicenow/sdk-cli</text>
+    <text x="295" y="115">@servicenow/sdk-api</text>
+    <text x="490" y="115">@servicenow/sdk-core</text>
+  </g>
+  <g stroke="#22d3ee" stroke-width="2">
+    <line x1="120" y1="150" x2="120" y2="220"/>
+    <line x1="320" y1="150" x2="320" y2="220"/>
+    <line x1="520" y1="150" x2="520" y2="220"/>
+  </g>
+  <g stroke="#334155" fill="#0b1220">
+    <rect x="140" y="220" width="440" height="90" rx="10"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#cbd5e1">
+    <text x="180" y="252">Build Core + Plugins + Platform Types</text>
+    <text x="190" y="276">@servicenow/sdk-build-core · @servicenow/sdk-build-plugins · @servicenow/glide</text>
+  </g>
+</svg>

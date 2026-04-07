@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360">
+  <rect width="720" height="360" rx="12" fill="#0f172a"/>
+  <g font-family="Inter, ui-sans-serif" font-size="14" fill="#e5e7eb">
+    <text x="24" y="32" font-weight="600" fill="#a7f3d0">@servicenow/sdk-core</text>
+  </g>
+  <g stroke="#334155" fill="#111827">
+    <rect x="260" y="70" width="200" height="80" rx="10"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#f1f5f9">
+    <text x="300" y="115">Schemas · Types · Contracts</text>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#22d3ee"/>
+    </marker>
+  </defs>
+  <g stroke="#334155" fill="#0b1220">
+    <rect x="60" y="220" width="180" height="70" rx="8"/>
+    <rect x="270" y="220" width="180" height="70" rx="8"/>
+    <rect x="480" y="220" width="180" height="70" rx="8"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#cbd5e1">
+    <text x="82" y="262">@servicenow/sdk-build-core</text>
+    <text x="290" y="262">@servicenow/sdk-build-plugins</text>
+    <text x="520" y="262">@servicenow/sdk-api</text>
+  </g>
+  <g stroke="#22d3ee" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="360" y1="150" x2="150" y2="220"/>
+    <line x1="360" y1="150" x2="360" y2="220"/>
+    <line x1="360" y1="150" x2="570" y2="220"/>
+  </g>
+</svg>

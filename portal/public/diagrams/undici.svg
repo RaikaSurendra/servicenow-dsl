@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360">
+  <rect width="720" height="360" rx="12" fill="#0f172a"/>
+  <g font-family="Inter, ui-sans-serif" font-size="14" fill="#e5e7eb">
+    <text x="24" y="32" font-weight="600" fill="#a7f3d0">undici</text>
+  </g>
+  <g stroke="#334155" fill="#111827">
+    <rect x="60" y="140" width="220" height="80" rx="8"/>
+    <rect x="440" y="140" width="220" height="80" rx="8"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#f1f5f9">
+    <text x="90" y="190">@servicenow/sdk-api</text>
+    <text x="476" y="190">ServiceNow Instance</text>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#22d3ee"/>
+    </marker>
+  </defs>
+  <g stroke="#22d3ee" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="280" y1="180" x2="440" y2="180"/>
+    <line x1="440" y1="200" x2="280" y2="200"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="12" fill="#cbd5e1">
+    <text x="300" y="172">HTTP/1.1, HTTP/2 (pooled)</text>
+    <text x="308" y="214">Streams · Headers · Status</text>
+  </g>
+</svg>

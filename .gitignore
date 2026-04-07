@@ -49,3 +49,6 @@ yarn-error.log*
 *.key
 *.crt
 .vercel
+
+# Local npm pack caches (tarballs and extracted package sources)
+docs/npm-packs/

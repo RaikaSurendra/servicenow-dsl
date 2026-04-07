@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360">
+  <rect width="720" height="360" rx="12" fill="#0f172a"/>
+  <g font-family="Inter, ui-sans-serif" font-size="14" fill="#e5e7eb">
+    <text x="24" y="32" font-weight="600" fill="#a7f3d0">@servicenow/glide</text>
+  </g>
+  <g stroke="#334155" fill="#111827">
+    <rect x="60" y="90" width="200" height="70" rx="8"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#f1f5f9">
+    <text x="78" y="132">Glide d.ts Declarations</text>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#22d3ee"/>
+    </marker>
+  </defs>
+  <g stroke="#334155" fill="#0b1220">
+    <rect x="320" y="80" width="160" height="60" rx="8"/>
+    <rect x="320" y="160" width="160" height="60" rx="8"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#cbd5e1">
+    <text x="355" y="118">sdk-build-plugins</text>
+    <text x="372" y="198">sdk-api</text>
+  </g>
+  <g stroke="#22d3ee" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="260" y1="125" x2="320" y2="110"/>
+    <line x1="260" y1="125" x2="320" y2="190"/>
+  </g>
+  <g stroke="#334155" fill="#0b1220">
+    <rect x="540" y="120" width="120" height="120" rx="10"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif" font-size="13" fill="#cbd5e1">
+    <text x="565" y="185">Editor TS/IntelliSense</text>
+  </g>
+  <g stroke="#22d3ee" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="480" y1="110" x2="540" y2="170"/>
+    <line x1="480" y1="190" x2="540" y2="180"/>
+  </g>
+</svg>
