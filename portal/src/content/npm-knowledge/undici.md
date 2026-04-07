@@ -37,3 +37,18 @@ sequenceDiagram
 
 - `https://www.npmjs.com/package/undici`
 - `npm pack undici`
+
+## Tarball Evidence (from docs/npm-packs/extract)
+
+- package.json highlights (undici-8.0.2/package/package.json):
+  - `name: undici`
+  - `version: 8.0.2`
+  - `main: index.js`, `types: index.d.ts`
+  - `engines.node: ">=22.19.0"`
+  - `dependencies: {}` (no runtime deps)
+  - rich scripts for build/test pipelines; TS definition tests via `tsd`
+- dist layout highlights:
+  - `lib/api/*`, `lib/core/*` — modular HTTP implementation
+  - `types/*` — first-class TypeScript definitions
+
+This confirms the zero-runtime-deps model, a modern Node.js engine requirement, and a strong TS-first API surface, aligning with its use as the SDK’s HTTP client.

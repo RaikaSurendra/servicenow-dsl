@@ -122,3 +122,82 @@ sequenceDiagram
 
 - `https://www.npmjs.com/package/@servicenow/sdk-cli`
 - `https://registry.npmjs.org/@servicenow%2Fsdk-cli`
+
+## Tarball Evidence (from docs/npm-packs/extract)
+
+- package.json highlights:
+  - `main: dist/index.js`
+  - `engines.node: ">=20.18.0"`
+  - dependencies include `yargs@17.6.2`, `winston@3.8.2`, `chalk@4.1.2`, `@inquirer/prompts@3.1.1`, `openid-client@5.6.5`, `@servicenow/sdk-api@4.5.0`, `@servicenow/sdk-build-core@4.5.0`
+- dist layout (selected):
+  - `dist/index.js`
+  - `dist/command/{auth,build,clean,dependencies,download,explain,init,install,move-to-app,pack,run,transform,upgrade}/index.js`
+  - `dist/logger/`, `dist/usage/`, `dist/telemetry/`, `dist/auth/`
+
+### Node engine guard and yargs setup (excerpt)
+
+```js
+// dist/index.js (excerpt)
+const yargs = require('yargs')
+const { usage } = require('./usage')
+const { epilogue } = require('./epilogue')
+const { build } = require('./command/build')
+const { install } = require('./command/install')
+const { download } = require('./command/download')
+const { transform } = require('./command/transform')
+const { init } = require('./command/init')
+const { auth } = require('./command/auth')
+const { pack } = require('./command/pack')
+const { explain } = require('./command/explain')
+const { clean } = require('./command/clean')
+const { dependencies } = require('./command/dependencies')
+const { satisfies } = require('semver')
+const { logger } = require('./logger')
+const pkg = require('../package.json')
+
+yargs
+  .check(() => {
+    const needed = pkg.engines.node
+    if (!satisfies(process.version, needed)) {
+      logger.error(`now-sdk requires node version to be ${needed}`)
+      process.exit(1)
+    }
+    return true
+  })
+  .usage(usage)
+  .option('debug', { alias: 'd', type: 'boolean', default: false })
+  .command(auth)
+  .command(init)
+  .command(download)
+  .command(build)
+  .command(install)
+  .command(dependencies)
+  .command(transform)
+  .command('run [script]', false, require('./command/run').run)
+  .command(clean)
+  .command(pack)
+  .command(explain)
+  .command('move', false, require('./command/move-to-app').moveToApp)
+  .demandCommand()
+  .epilogue(epilogue)
+  .strictCommands()
+  .help()
+  .scriptName('now-sdk').argv
+```
+
+### `snc build` command builder (excerpt)
+
+```js
+// dist/command/build/index.js (excerpt)
+exports.build = {
+  command: 'build [source]',
+  describe: 'Compile sources into app files and generate installable package',
+  builder: (yargs) => yargs
+    .positional('source', { describe: 'Path to project', default: process.cwd(), type: 'string' })
+    .option('frozenKeys', { describe: 'Validate Keys/SysIds for CI', default: false, type: 'boolean' })
+    .option('ids', { describe: 'Array of sysIds of records to build', type: 'array', string: true, hidden: true })
+    .option('profile', { describe: 'Emit a .cpuprofile', type: 'boolean', default: false, hidden: true }),
+  handler: async (args) => { /* orchestrator.build({ frozenKeys, sysIds }) */ }
+}
+```
+

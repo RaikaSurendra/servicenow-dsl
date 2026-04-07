@@ -34,3 +34,16 @@ flowchart LR
 
 - `https://www.npmjs.com/package/@servicenow/glide`
 - `npm pack @servicenow/glide`
+
+## Tarball Evidence (from docs/npm-packs/extract)
+
+- package.json highlights (servicenow-glide-27.0.5/package/package.json):
+  - `name: @servicenow/glide`
+  - `version: 27.0.5`
+  - `types: ./src/index.d.ts`
+  - `files: ["src", "!src/util/index.ts"]`
+  - `exports: { ".": "./src/types/index.js", "./*": "./src/*/index.js", "./util": "./src/util/index.js" }`
+  - `engines.node: ">=20.18.0"`
+  - dev-only toolchain: `ts-morph`, `ctix`, `typescript`, `tsx`, `jest`
+
+The presence of only `.d.ts` type declarations in `src/` and the export map confirm zero runtime JavaScript — this package purely provides TypeScript ambient contracts for Glide APIs.

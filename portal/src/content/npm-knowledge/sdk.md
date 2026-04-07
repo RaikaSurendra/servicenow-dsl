@@ -261,3 +261,25 @@ sequenceDiagram
 - `https://registry.npmjs.org/@servicenow%2Fsdk-api`
 - `https://registry.npmjs.org/@servicenow%2Fsdk-cli`
 - `https://registry.npmjs.org/@servicenow%2Fsdk-core`
+
+## Tarball Evidence (from docs/npm-packs/extract)
+
+- package.json highlights (servicenow-sdk-api-4.5.0/package/package.json):
+  - `name: @servicenow/sdk-api`
+  - `version: 4.5.0`
+  - `main: dist/index.js`
+  - `files: ["dist"]`
+  - `dependencies:`
+    - `@servicenow/isomorphic-rollup@1.2.15`
+    - `@servicenow/sdk-build-core@4.5.0`, `@servicenow/sdk-build-plugins@4.5.0`
+    - `crypto-js@4.2.0`, `fast-json-stable-stringify@2.1.0`, `fast-xml-parser@5.3.7`, `handlebars@4.7.8`, `lodash@4.17.23`, `zod@3.23.8`
+  - `engines: { node: ">=20.18.0", pnpm: ">=10.8.0" }`
+  - build scripts present: template bundling and external plugin bundling (via `tsx`), `tsc -b`
+- dist layout (selected):
+  - `dist/index.js` (public barrel)
+  - `dist/orchestrator/*` (lifecycle orchestration)
+  - `dist/connector/*` (HTTP, auth and upload/install primitives)
+  - `dist/project*` (Project model, project factory/templates)
+  - `dist/context/*` (parse/commit/diagnostics/keys)
+
+This confirms the role described above: an API surface that composes the compiler core, plugins, network connector, and project model into a single programmatic layer.

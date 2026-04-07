@@ -39,3 +39,22 @@ Without the umbrella package, teams would need to manually align versions of mul
 
 - `https://www.npmjs.com/package/@servicenow/sdk`
 - `npm pack @servicenow/sdk`
+
+## Tarball Evidence (from docs/npm-packs/extract)
+
+- package.json highlights:
+  - `version: 4.5.0`
+  - `bin: { "now-sdk": "./bin/index.js", "now-sdk-debug": "./bin/debug.js", "@servicenow/sdk": "./bin/index.js" }`
+  - exports map:
+    - `./api` → Node default `./dist/api/index.js`, browser `./dist/web/index.js`, types `./dist/api/index.d.ts`
+    - `./api/browser` → `./dist/web/index.js` (types `./dist/api/index.d.ts`)
+    - `./lsp` → `./dist/lsp/index.js` (types `./dist/lsp/index.d.ts`)
+    - `./core` → `./src/core/index.ts` (types `./dist/core/index.d.ts`)
+    - `./automation` → `./src/automation/index.ts`
+    - `./global` → `./dist/global/index.js`
+  - `dependencies: { "@servicenow/sdk-cli": "4.5.0", "@servicenow/sdk-api": "4.5.0", "@servicenow/sdk-core": "4.5.0" }`
+  - `optionalDependencies: { "undici": "6.19.8" }`
+  - `engines: { node: ">=20.18.0", pnpm: ">=10.8.0" }`
+  - `files: ["dist","src/core/index.ts","src/automation/index.ts","docs"]`
+
+This confirms the umbrella’s role: publish binaries, unify sub-packages, and expose a multi-surface exports map with both Node and browser builds for `./api`.

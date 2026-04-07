@@ -1,10 +1,4 @@
-import sdkApiKnowledge from './npm-knowledge/sdk.md?raw'
-import sdkCliKnowledge from './npm-knowledge/sdk-cli.md?raw'
-import sdkCoreKnowledge from './npm-knowledge/sdk-core.md?raw'
-import sdkUmbrellaKnowledge from './npm-knowledge/sdk-umbrella.md?raw'
-import sdkBuildPluginsKnowledge from './npm-knowledge/sdk-build-plugins.md?raw'
-import glideKnowledge from './npm-knowledge/glide.md?raw'
-import undiciKnowledge from './npm-knowledge/undici.md?raw'
+
 
 export default function Ch10({ CodeBlock, Callout }) {
   return (
@@ -28,96 +22,29 @@ export default function Ch10({ CodeBlock, Callout }) {
         </Callout>
       </Section>
 
-      <Section title="Canonical Notes Source: @servicenow/sdk-api">
-        <p>
-          This chapter now uses the canonical notes file at{' '}
-          <code>portal/src/content/npm-knowledge/sdk.md</code> as a source of truth. Update that file to keep
-          this section current.
-        </p>
-        <CodeBlock
-          language="markdown"
-          filename="portal/src/content/npm-knowledge/sdk.md"
-          showLineNumbers={false}
-          code={sdkApiKnowledge}
-        />
+      <Section title="High-level Diagram">
+        <img src="/diagrams/sdk-umbrella.svg" alt="ServiceNow SDK ecosystem overview" style={{ width: '100%', maxWidth: 720, borderRadius: 8, border: '1px solid var(--color-border)' }} />
       </Section>
 
-      <Section title="Canonical Notes Source: @servicenow/sdk-cli">
+      <Section title="Deep Dives (Ch11–Ch17)">
         <p>
-          Companion reference content for the CLI layer is maintained in{' '}
-          <code>portal/src/content/npm-knowledge/sdk-cli.md</code>.
+          This chapter is a concise ecosystem overview. Open the dedicated chapters for details:
         </p>
         <CodeBlock
-          language="markdown"
-          filename="portal/src/content/npm-knowledge/sdk-cli.md"
+          language="text"
+          filename="Index"
           showLineNumbers={false}
-          code={sdkCliKnowledge}
+          code={`CH11 — @servicenow/sdk (umbrella)
+CH12 — @servicenow/sdk-api
+CH13 — @servicenow/sdk-cli
+CH14 — @servicenow/sdk-core
+CH15 — @servicenow/sdk-build-plugins
+CH16 — @servicenow/glide
+CH17 — undici`}
         />
-      </Section>
-
-      <Section title="Canonical Notes Source: @servicenow/sdk-core">
-        <p>
-          Companion reference content for metadata contracts is maintained in{' '}
-          <code>portal/src/content/npm-knowledge/sdk-core.md</code>.
-        </p>
-        <CodeBlock
-          language="markdown"
-          filename="portal/src/content/npm-knowledge/sdk-core.md"
-          showLineNumbers={false}
-          code={sdkCoreKnowledge}
-        />
-      </Section>
-
-      <Section title="Canonical Notes Source: @servicenow/sdk (umbrella)">
-        <p>
-          Pack-level anatomy for the umbrella package is maintained in{' '}
-          <code>portal/src/content/npm-knowledge/sdk-umbrella.md</code>.
-        </p>
-        <CodeBlock
-          language="markdown"
-          filename="portal/src/content/npm-knowledge/sdk-umbrella.md"
-          showLineNumbers={false}
-          code={sdkUmbrellaKnowledge}
-        />
-      </Section>
-
-      <Section title="Canonical Notes Source: @servicenow/sdk-build-plugins">
-        <p>
-          Build plugin internals and execution flow are maintained in{' '}
-          <code>portal/src/content/npm-knowledge/sdk-build-plugins.md</code>.
-        </p>
-        <CodeBlock
-          language="markdown"
-          filename="portal/src/content/npm-knowledge/sdk-build-plugins.md"
-          showLineNumbers={false}
-          code={sdkBuildPluginsKnowledge}
-        />
-      </Section>
-
-      <Section title="Canonical Notes Source: @servicenow/glide">
-        <p>
-          Glide type declaration package notes are maintained in{' '}
-          <code>portal/src/content/npm-knowledge/glide.md</code>.
-        </p>
-        <CodeBlock
-          language="markdown"
-          filename="portal/src/content/npm-knowledge/glide.md"
-          showLineNumbers={false}
-          code={glideKnowledge}
-        />
-      </Section>
-
-      <Section title="Canonical Notes Source: undici">
-        <p>
-          HTTP transport and runtime integration notes are maintained in{' '}
-          <code>portal/src/content/npm-knowledge/undici.md</code>.
-        </p>
-        <CodeBlock
-          language="markdown"
-          filename="portal/src/content/npm-knowledge/undici.md"
-          showLineNumbers={false}
-          code={undiciKnowledge}
-        />
+        <Callout type="tip">
+          Use Prev/Next below or go Home to select chapters.
+        </Callout>
       </Section>
 
       {/* ── Package graph ── */}
@@ -177,6 +104,8 @@ Support packages (used by sdk-api and sdk-build-plugins):
         />
       </Section>
 
+      {false && (
+        <>
       {/* ── @servicenow/sdk ── */}
       <Section title="@servicenow/sdk — The Umbrella Orchestrator">
         <SubSection label="What it contains">
@@ -840,6 +769,9 @@ XMLDocument           XMLNode              RESTMessageV2`}
         </SubSection>
       </Section>
 
+        </>
+      )}
+
       {/* ── How to inspect packages yourself ── */}
       <Section title="How to Inspect These Packages Yourself">
         <p>
@@ -880,9 +812,9 @@ npm pack @servicenow/sdk-cli@4.5.0
 tar -xzf servicenow-sdk-cli-4.5.0.tgz
 
 # Browse the compiled output
-ls package/dist/commands/     # each snc subcommand
-ls package/dist/lib/          # internal helpers
-cat package/dist/commands/build.js | head -60  # read the build handler`}
+ls package/dist/command/                 # each snc subcommand
+ls package/dist/logger/                  # internal helpers
+cat package/dist/command/build/index.js | head -60  # read the build handler`}
           />
         </SubSection>
 
@@ -893,7 +825,7 @@ cat package/dist/commands/build.js | head -60  # read the build handler`}
             showLineNumbers={false}
             code={`snc build
   → node ./dist/cli/index.js build          (@servicenow/sdk bin)
-  → yargs finds commands/build.js           (@servicenow/sdk-cli)
+  → yargs finds command/build/index.js      (@servicenow/sdk-cli)
   → handler calls buildPipeline()
   → buildPipeline imports sdk-build-core    (@servicenow/sdk-build-core)
   → core instantiates Project (ts-morph)

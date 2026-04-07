@@ -134,3 +134,18 @@ flowchart TD
 
 - `https://www.npmjs.com/package/@servicenow/sdk-core`
 - `https://registry.npmjs.org/@servicenow%2Fsdk-core`
+
+## Tarball Evidence (from docs/npm-packs/extract)
+
+- package.json highlights:
+  - `types: dist/global/index.d.ts`
+  - `exports: { "./global": "./dist/global/index.d.ts", "./*": "./src/*/index.ts", "./runtime/*": "./dist/*/index.js" }`
+  - `engines.node: ">=20.18.0"`
+  - No `dependencies` field present in the manifest at `4.5.0`
+- Source layout (selected): `src/`
+  - `app/`, `db/`, `flow/`, `fluent/`, `global/`, `service-catalog/`, `service-portal/`, `ui/`, `util/`, `rest/`, `script/`, `clientscript/`, `dashboard/`, `instancescan/`, `notification/`, `sys/`, `uxf/`
+- Contract split:
+  - Type-only entry via `./global` for editor/consumer typings
+  - Runtime helpers via `./runtime/*` for use by build-time processes
+
+This structure matches the observed role: schemas and types are authored in `src/*`, while runtime-affecting utilities are emitted to `dist/*` and re-exported from `./runtime/*` subpaths.

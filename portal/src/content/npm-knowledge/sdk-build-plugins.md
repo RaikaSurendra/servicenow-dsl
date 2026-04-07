@@ -46,3 +46,30 @@ flowchart TD
 
 - `https://www.npmjs.com/package/@servicenow/sdk-build-plugins`
 - `npm pack @servicenow/sdk-build-plugins`
+
+## Tarball Evidence (from docs/npm-packs/extract)
+
+- package.json highlights (servicenow-sdk-build-plugins-4.5.0/package/package.json):
+  - `name: @servicenow/sdk-build-plugins`
+  - `version: 4.5.0`
+  - `main: ./dist/index.js`
+  - `exports: { ".": "./dist/index.js" }`
+  - `files: ["dist","src"]`
+  - `engines: { node: ">=20.18.0", pnpm: ">=10.8.0" }`
+  - `dependencies:`
+    - `@servicenow/sdk-build-core@4.5.0`, `@servicenow/sdk-core@4.5.0`, `@servicenow/glide@27.0.5`
+    - `eslint@9.39.4`, `eslint-formatter-stylish@8.40.0`, `@eslint-community/eslint-utils@4.9.1`, `globals@17.3.0`
+    - `fast-xml-parser@5.3.7`, `xmlbuilder2@3.1.1`, `xml-js@1.6.11`
+    - `@cyclonedx/cyclonedx-library@8.6.0`, `packageurl-js@2.0.1`, `mime-types@2.1.35`, `md5.js@1.3.5`
+    - `lodash@4.17.23`, `zod@3.23.8`
+  - `optionalDependencies: { libxmljs2: "0.37.0" }`
+  - `overrides: { micromatch: "4.0.7" }`
+- dist layout (selected):
+  - `dist/index.js` (public barrel)
+  - `dist/plugin/*` and multiple top-level modules implementing transforms for:
+    - ACLs, applicability, app menus, business rules, client scripts, columns, data, email notifications
+    - forms, HTML imports, import sets, instance scans, JSON, lists, Now Attach/Config/ID/Include/Ref
+    - package JSON, properties, records, REST APIs, roles, script actions/includes, SLAs, static content
+    - tables, UI actions/pages/policies, user preferences, UX list menu configs, views, workspaces
+
+This corroborates the plugin registry’s breadth: validation, XML transforms, and SBOM/package metadata generation live here, driven by eslint + XML toolchain and SBOM libraries.
